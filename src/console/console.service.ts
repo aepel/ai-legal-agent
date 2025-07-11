@@ -138,8 +138,8 @@ export class ConsoleService {
     
     console.log('\n💡 Examples:');
     console.log('  index penal-code/codigo-penal.pdf PENAL_CODE');
-    console.log('  query "¿Qué dice el Código Civil sobre la responsabilidad parental?"');
-    console.log('  generate "Demanda por Alimentos" "Redactar demanda por alimentos" COMPLAINT');
+    console.log('  query "What does the Civil Code say about parental responsibility?"');
+    console.log('  generate "Child Support Complaint" "Draft a complaint to initiate a child support lawsuit" COMPLAINT');
   }
 
   public async indexDocument(args: string[]): Promise<void> {
@@ -180,7 +180,7 @@ export class ConsoleService {
   public async processQuery(args: string[]): Promise<void> {
     if (args.length === 0) {
       console.log('❌ Usage: query <question>');
-      console.log('💡 Example: query "¿Qué dice el Código Civil sobre la responsabilidad parental?"');
+      console.log('💡 Example: query "What does the Civil Code say about parental responsibility?"');
       return;
     }
 
@@ -287,10 +287,10 @@ export class ConsoleService {
     console.log('\n💡 Example Commands:');
     console.log('===================');
     console.log('index penal-code/codigo-penal.pdf PENAL_CODE');
-    console.log('query "¿Qué dice el Código Civil sobre la responsabilidad parental?"');
-    console.log('generate "Demanda por Alimentos" "Redactar una demanda por alimentos para un menor" COMPLAINT');
-    console.log('query "¿Cuáles son los requisitos para una demanda por alimentos?"');
-    console.log('generate "Contrato de Compraventa" "Generar un contrato de compraventa de inmueble" CONTRACT');
+    console.log('query "What does the Civil Code say about parental responsibility?"');
+    console.log('generate "Child Support Complaint" "Draft a complaint to initiate a child support lawsuit" COMPLAINT');
+    console.log('query "What are the requirements for a child support lawsuit?"');
+    console.log('generate "Real Estate Purchase Agreement" "Generate a real estate purchase agreement" CONTRACT');
   }
 
   private async clearConsole(): Promise<void> {
@@ -388,7 +388,7 @@ export class ConsoleService {
       
       if (indexedCount > 0) {
         console.log(`\n🎉 Your legal knowledge base is ready!`);
-        console.log(`   Try: query "¿Qué dice el Código Civil sobre la responsabilidad parental?"`);
+        console.log(`   Try: query "What does the Civil Code say about parental responsibility?"`);
       }
       
     } catch (error) {

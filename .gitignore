@@ -211,3 +211,4 @@ jspm_packages/
 assets/*.pdf
 assets/*/*.pdf
 assets/*/*/*.pdf 
+BLOG_POST.md

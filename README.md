@@ -320,3 +320,76 @@ For support and questions:
 - [ ] Integration with legal databases
 - [ ] Mobile API support
 - [ ] Real-time document collaboration 
+
+### 🧠 Using OpenAI (ChatGPT) as the AI Provider
+
+You can use OpenAI's ChatGPT models (like gpt-4o, o4-mini, gpt-3.5-turbo, etc.) as the backend for legal queries and document generation. This is useful if you want to avoid Google Gemini API quotas or prefer OpenAI's models.
+
+#### 1. Install OpenAI SDK (already included)
+
+The project already includes the OpenAI SDK as a dependency.
+
+#### 2. Configure Environment Variables
+
+Add the following to your `.env` file:
+
+```env
+AI_PROVIDER=openai
+OPENAI_API_KEY=sk-...your-openai-key...
+OPENAI_MODEL=o4-mini  # or gpt-4o, gpt-3.5-turbo, etc.
+```
+
+- `AI_PROVIDER` should be set to `openai` to use OpenAI models.
+- `OPENAI_API_KEY` is your OpenAI API key (get it from https://platform.openai.com/api-keys).
+- `OPENAI_MODEL` is the model you want to use (e.g., `gpt-4o`, `o4-mini`, `gpt-3.5-turbo`).
+
+#### 3. How it Works
+
+- All legal queries and document generation will use the selected OpenAI model.
+- You can switch back to Google Gemini by setting `AI_PROVIDER=google` in your `.env`.
+
+#### 4. Example Usage
+
+```env
+AI_PROVIDER=openai
+OPENAI_API_KEY=sk-...your-openai-key...
+OPENAI_MODEL=gpt-4o
+```
+
+Then run:
+
+```bash
+yarn console
+```
+
+And use the system as usual! 
+
+## 📄 Adding Legal Documents (PDFs)
+
+- Place your legal documents as PDF files in the appropriate subfolders under the `assets/` directory (e.g., `assets/penal-code/`, `assets/case-law/`, etc.).
+- You can add any legal document from any country or jurisdiction—this system supports international law as well as Argentine law.
+- The folder structure helps categorize documents by type, but you can add new folders for other legal systems if needed.
+- All PDFs in the `assets/` directory and its subfolders will be automatically indexed on startup.
+
+**Example:**
+- `assets/penal-code/argentine-penal-code.pdf`
+- `assets/case-law/landmark-us-supreme-court-case.pdf`
+- `assets/eu-law/gdpr.pdf`
+
+---
+
+## 🧪 Example Queries
+
+### Legal Questions
+- "What does the Civil Code say about parental responsibility?"
+- "What are the requirements for a child support lawsuit?"
+- "What does the Penal Code establish about theft?"
+- "What are the legal requirements for property inheritance?"
+- "How does the Commercial Code regulate business contracts?"
+
+### Document Generation Prompts
+- "Draft a complaint to initiate a child support lawsuit"
+- "Generate a real estate purchase agreement"
+- "Write a civil appeal brief"
+- "Create a business partnership contract"
+- "Draft a legal opinion on employment termination" 
