@@ -393,3 +393,33 @@ And use the system as usual!
 - "Write a civil appeal brief"
 - "Create a business partnership contract"
 - "Draft a legal opinion on employment termination" 
+
+## 🧠 LangChain Integration (Advanced AI)
+
+Lawer.AI now supports advanced document processing and semantic search using [LangChain](https://github.com/langchain-ai/langchainjs). This enables:
+- Semantic search over your indexed legal documents
+- Advanced prompt chaining for legal queries and document generation
+- Document validation and legal reasoning
+
+### How to Use LangChain in the Console
+
+Start the console:
+```bash
+yarn console
+```
+
+Available LangChain commands:
+- `langchain query <question>` — Ask a legal question using semantic search and LLM
+- `langchain generate <title> <prompt> <documentType>` — Generate a legal document
+- `langchain validate <content>` — Validate a legal document
+- `langchain stats` — Show LangChain vector store statistics
+
+#### Example Usage
+```bash
+langchain query What does the Civil Code say about parental responsibility?
+langchain generate "Child Support Complaint" "Draft a complaint to initiate a child support lawsuit" COMPLAINT
+langchain validate "This is the content of a legal document to be validated..."
+langchain stats
+```
+
+LangChain will use your indexed PDFs for context and provide more relevant, professional, and explainable legal answers and documents. 

@@ -61,3 +61,13 @@ You can add sample documents like:
 - `codigo-civil-argentino.pdf` - Argentine Civil Code
 - `codigo-comercial-argentino.pdf` - Argentine Commercial Code
 - `fallos-suprema-corte-2023.pdf` - Supreme Court rulings 
+
+## LangChain Semantic Search
+
+All PDF documents you add to the assets folder are now also indexed into the LangChain vector store. This enables:
+- Semantic search and retrieval for advanced legal queries
+- Context-aware document generation and validation
+- Use of the `langchain` commands in the console to leverage these features
+
+**Tip:**
+- Run `yarn console` and use commands like `langchain query <question>` or `langchain generate ...` to get AI-powered results based on your own legal documents. 

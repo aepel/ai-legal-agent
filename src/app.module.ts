@@ -5,6 +5,7 @@ import { LegalQueryModule } from './interface/legal-query/legal-query.module';
 import { LegalWritingModule } from './interface/legal-writing/legal-writing.module';
 import { ConsoleModule } from './console/console.module';
 import { AIService } from './infrastructure/services/ai.service';
+import { LangChainService } from './infrastructure/services/langchain.service';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { AIService } from './infrastructure/services/ai.service';
     LegalWritingModule,
     ConsoleModule,
   ],
-  providers: [AIService],
+  providers: [AIService, LangChainService],
 })
 export class AppModule {} 

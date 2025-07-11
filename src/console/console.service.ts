@@ -8,6 +8,7 @@ import { ProcessLegalQueryUseCase } from '@/application/use-cases/legal-query.us
 import { GenerateLegalDocumentUseCase } from '@/application/use-cases/legal-writing.use-case';
 import { DocumentType } from '@/domain/entities/legal-document.entity';
 import { WritingDocumentType } from '@/domain/entities/legal-writing.entity';
+import { LangChainService } from '@/infrastructure/services/langchain.service';
 
 export interface ConsoleCommand {
   name: string;
@@ -25,6 +26,7 @@ export class ConsoleService {
     private readonly indexDocumentUseCase: IndexDocumentUseCase,
     private readonly processLegalQueryUseCase: ProcessLegalQueryUseCase,
     private readonly generateLegalDocumentUseCase: GenerateLegalDocumentUseCase,
+    private readonly langChainService: LangChainService,
   ) {
     this.initializeCommands();
   }
@@ -76,6 +78,12 @@ export class ConsoleService {
       name: 'auto-index',
       description: 'Automatically index all documents in assets folder',
       handler: this.autoIndexAssets.bind(this),
+    });
+
+    this.commands.set('langchain', {
+      name: 'langchain',
+      description: 'Use LangChain features for advanced AI processing',
+      handler: this.useLangChain.bind(this),
     });
   }
 
@@ -370,6 +378,15 @@ export class ConsoleService {
 
             if (result.success) {
               console.log(`    ✅ Indexed: ${result.document.title}`);
+              
+              // Also add to LangChain vector store
+              try {
+                await this.langChainService.addDocuments([result.document]);
+                console.log(`    🔗 Added to LangChain vector store`);
+              } catch (langChainError) {
+                console.log(`    ⚠️  LangChain error: ${langChainError.message}`);
+              }
+              
               indexedCount++;
             } else {
               console.log(`    ❌ Failed: ${result.message}`);
@@ -393,6 +410,183 @@ export class ConsoleService {
       
     } catch (error) {
       console.log(`❌ Auto-indexing failed: ${error.message}`);
+    }
+  }
+
+  private async useLangChain(args: string[]): Promise<void> {
+    if (args.length === 0) {
+      console.log('❌ Usage: langchain <command> [options]');
+      console.log('📋 Available LangChain commands:');
+      console.log('  query <question> - Use LangChain for advanced legal queries');
+      console.log('  generate <title> <prompt> <type> - Use LangChain for document generation');
+      console.log('  validate <content> - Use LangChain for document validation');
+      console.log('  stats - Show LangChain vector store statistics');
+      return;
+    }
+
+    const command = args[0];
+
+    switch (command) {
+      case 'query':
+        if (args.length < 2) {
+          console.log('❌ Usage: langchain query <question>');
+          return;
+        }
+        await this.langChainQuery(args.slice(1));
+        break;
+
+      case 'generate':
+        if (args.length < 4) {
+          console.log('❌ Usage: langchain generate <title> <prompt> <documentType>');
+          return;
+        }
+        await this.langChainGenerate(args.slice(1));
+        break;
+
+      case 'validate':
+        if (args.length < 2) {
+          console.log('❌ Usage: langchain validate <content>');
+          return;
+        }
+        await this.langChainValidate(args.slice(1).join(' '));
+        break;
+
+      case 'stats':
+        await this.langChainStats();
+        break;
+
+      default:
+        console.log(`❌ Unknown LangChain command: ${command}`);
+        console.log('💡 Try: langchain query "What does the Civil Code say about parental responsibility?"');
+    }
+  }
+
+  private async langChainQuery(args: string[]): Promise<void> {
+    const question = args.join(' ');
+    console.log(`🤖 LangChain Query: "${question}"`);
+
+    try {
+      // Search for relevant documents using LangChain
+      const relevantDocs = await this.langChainService.searchSimilarDocuments(question, 3);
+      
+      if (relevantDocs.length === 0) {
+        console.log('⚠️  No relevant documents found in LangChain vector store');
+        return;
+      }
+
+      const context = relevantDocs.map(doc => 
+        `${doc.metadata.title}: ${doc.pageContent.substring(0, 500)}`
+      ).join('\n\n');
+
+      // Generate answer using LangChain
+      const answer = await this.langChainService.generateLegalAnswer(question, context);
+      
+      console.log('\n📝 LangChain Answer:');
+      console.log('===================');
+      console.log(answer);
+      
+      console.log('\n📚 Sources:');
+      relevantDocs.forEach((doc, index) => {
+        console.log(`${index + 1}. ${doc.metadata.title}`);
+      });
+
+    } catch (error) {
+      console.log(`❌ LangChain query failed: ${error.message}`);
+    }
+  }
+
+  private async langChainGenerate(args: string[]): Promise<void> {
+    const title = args[0];
+    const documentType = args[args.length - 1];
+    const prompt = args.slice(1, -1).join(' ');
+
+    console.log(`✍️  LangChain Document Generation: ${title}`);
+    console.log(`📝 Prompt: ${prompt}`);
+
+    try {
+      // Search for relevant documents
+      const relevantDocs = await this.langChainService.searchSimilarDocuments(prompt, 3);
+      const context = relevantDocs.map(doc => 
+        `${doc.metadata.title}: ${doc.pageContent.substring(0, 500)}`
+      ).join('\n\n');
+
+      // Generate document using LangChain
+      const result = await this.langChainService.generateLegalDocument(
+        title,
+        prompt,
+        context,
+        documentType
+      );
+
+      console.log('\n📄 LangChain Generated Document:');
+      console.log('===============================');
+      console.log(`Title: ${title}`);
+      console.log(`Document Type: ${documentType}`);
+      
+      console.log('\n📝 Content:');
+      console.log('===========');
+      console.log(result.content);
+      
+      if (result.sections.length > 0) {
+        console.log('\n📋 Sections:');
+        result.sections.forEach(section => {
+          console.log(`${section.order}. ${section.title}`);
+        });
+      }
+
+    } catch (error) {
+      console.log(`❌ LangChain document generation failed: ${error.message}`);
+    }
+  }
+
+  private async langChainValidate(content: string): Promise<void> {
+    console.log('🔍 LangChain Document Validation');
+    console.log('===============================');
+
+    try {
+      const validation = await this.langChainService.validateLegalDocument(content);
+      
+      console.log(`\n✅ Validity: ${validation.isValid ? 'Valid' : 'Needs Review'}`);
+      
+      if (validation.issues.length > 0) {
+        console.log('\n❌ Issues Found:');
+        validation.issues.forEach((issue, index) => {
+          console.log(`${index + 1}. ${issue}`);
+        });
+      }
+      
+      if (validation.suggestions.length > 0) {
+        console.log('\n💡 Suggestions:');
+        validation.suggestions.forEach((suggestion, index) => {
+          console.log(`${index + 1}. ${suggestion}`);
+        });
+      }
+      
+      console.log('\n📊 Analysis:');
+      console.log(validation.analysis);
+
+    } catch (error) {
+      console.log(`❌ LangChain validation failed: ${error.message}`);
+    }
+  }
+
+  private async langChainStats(): Promise<void> {
+    console.log('📊 LangChain Vector Store Statistics');
+    console.log('====================================');
+
+    try {
+      const stats = await this.langChainService.getVectorStoreStats();
+      
+      console.log(`📚 Documents in vector store: ${stats.documentCount}`);
+      console.log(`🤖 AI Provider: ${stats.provider}`);
+      
+      if (stats.documentCount === 0) {
+        console.log('\n💡 No documents in LangChain vector store yet.');
+        console.log('   Run "auto-index" first to populate the vector store.');
+      }
+
+    } catch (error) {
+      console.log(`❌ Failed to get LangChain stats: ${error.message}`);
     }
   }
 } 

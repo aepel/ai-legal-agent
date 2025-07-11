@@ -7,15 +7,17 @@ import { LegalWritingModule } from '@/interface/legal-writing/legal-writing.modu
 import { IndexDocumentUseCase } from '@/application/use-cases/document-indexing.use-case';
 import { ProcessLegalQueryUseCase } from '@/application/use-cases/legal-query.use-case';
 import { GenerateLegalDocumentUseCase } from '@/application/use-cases/legal-writing.use-case';
+import { LangChainService } from '@/infrastructure/services/langchain.service';
 
 @Module({
   imports: [DocumentModule, LegalQueryModule, LegalWritingModule],
   providers: [
-    ConsoleService, 
+    ConsoleService,
     ConsoleController,
     IndexDocumentUseCase,
     ProcessLegalQueryUseCase,
     GenerateLegalDocumentUseCase,
+    LangChainService,
   ],
   exports: [ConsoleService, ConsoleController],
 })
